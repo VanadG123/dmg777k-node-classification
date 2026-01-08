@@ -16,7 +16,6 @@ Node classification on the **DMG777K** knowledge graph using a **multimodal** pi
 - [Embedding Timing (Offline vs Online)](#embedding-timing-offline-vs-online)
 - [Bonus: Joint Fine-tuning (Planned/POC)](#bonus-joint-fine-tuning-plannedpoc)
 - [Results](#results)
-- [Troubleshooting](#troubleshooting)
 - [Acknowledgements](#acknowledgements)
 
 ---
@@ -50,29 +49,34 @@ Recommended platform: **Google Colab (GPU)**. [file:2]
 ### Install dependencies
 In Colab:
 
-```bash
+```bash 
 !pip install kgbench-loader torch_geometric transformers
+```
+
 Running the Notebook
 1) Load the dataset
 The notebook loads DMG777K using kgbench:
-
+```
 python
 import kgbench as kg
 data = kg.load('dmg777k', torch=True, final=True)
+```
 2) Build edges
 Construct edge_index and edge_type from data.triples:
-
+```
 python
 num_nodes = data.num_entities
 mask_valid = (data.triples[:,0] < num_nodes) & (data.triples[:,2] < num_nodes)
 
 edge_index = torch.stack([data.triples[:,0], data.triples[:,2]], dim=0)[:, mask_valid]
 edge_type  = data.triples[:,1][mask_valid]
+```
+
 3) (Optional but recommended) Cache embeddings
 CLIP embedding extraction is expensive. You can save x_multimodal to Google Drive and reload after restarts.
 
-Experiments
-Baseline: Bag-of-Relations (BoR) + R-GCN
+## Experiments
+### Baseline: Bag-of-Relations (BoR) + R-GCN
 A fast, strong structural baseline:
 
 Create BoR feature vector for each node by counting incoming relations.
@@ -81,7 +85,7 @@ Train an R-GCN using these features.
 
 This baseline uses only KG structure (no images/text).
 
-Multimodal: CLIP Embeddings + R-GCN
+### Multimodal: CLIP Embeddings + R-GCN
 Multimodal pipeline:
 
 Use data.get_images() and data.get_strings('http://www.w3.org/2001/XMLSchema#string')
@@ -92,7 +96,7 @@ Fill the global feature matrix x_multimodal
 
 Train R-GCN on those features
 
-Subset Strategy (Why it’s Needed)
+### Subset Strategy (Why it’s Needed)
 Full-batch R-GCN on the entire DMG777K graph often exceeds Colab GPU memory. [file:2]
 
 Therefore, the notebook uses a subset/subgraph strategy:
@@ -107,7 +111,7 @@ Train on the sampled subgraph.
 
 This aligns with the assignment’s instruction to create a subset if runtime constraints occur. [file:2]
 
-Embedding Timing (Offline vs Online)
+## Embedding Timing (Offline vs Online)
 The assignment explicitly asks when to compute multimodal embeddings. [file:2]
 
 Offline (used here)
@@ -128,7 +132,7 @@ Backprop through CLIP + GNN jointly.
 Pros: end-to-end task adaptation.
 Cons: expensive (memory/time), usually needs neighbor sampling.
 
-Bonus: Joint Fine-tuning (Planned/POC)
+## Bonus: Joint Fine-tuning (Planned/POC)
 The bonus task is to jointly fine-tune pre-trained models with the GNN. [file:2]
 
 A proof-of-concept approach:
@@ -141,7 +145,7 @@ Backprop classification loss into CLIP + R-GCN.
 
 This is computationally intensive; a few epochs on a small subgraph are acceptable as proof-of-concept. [file:2]
 
-Results
+## Results
 Results depend on:
 
 subset size, hop count, and seed selection
@@ -182,7 +186,7 @@ Build a bidirectional graph before k-hop sampling.
 
 Adjust seeds/hops to include entity↔literal neighborhoods.
 
-Acknowledgements
+## Acknowledgements
 
 DMG777K dataset via the kgbench ecosystem (Peter Bloem’s KG benchmark tooling).
 
