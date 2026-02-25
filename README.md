@@ -1,6 +1,18 @@
 # Multimodal GNN on DMG777K 
 
-Node classification on the **DMG777K** knowledge graph using a **multimodal** pipeline: structural graph information + **pre-trained vision and language encoders** (CLIP from Hugging Face) to embed node attributes (image/text literals), followed by an **R-GCN** for message passing and classification.
+This project solves a complex data problem: How do you teach a computer to categorize items in a massive database when the information is a mix of text, images, and relationships?
+
+Most AI models look at just text or just images. This pipeline uses a Multimodal Graph Neural Network to "see" and "read" node attributes (using CLIP) while simultaneously understanding how those nodes are connected (using Graph Convolutional Networks).
+
+Standard databases (Knowledge Graphs) like **DMG777K** are messy. They contain "entities" (like a person) connected to "literals" (like a photo of that person or a written description).
+
+My approach combines three distinct AI strengths:
+
+ 1) Computer Vision: Uses OpenAI’s CLIP model to "understand" image attributes.
+
+ 2) Natural Language Processing (NLP): Uses CLIP’s text encoder to transform descriptions into mathematical vectors.
+
+ 3) Graph Intelligence: Uses an R-GCN (Relational Graph Convolutional Network) to process the "social network" of these items—understanding that who you are connected to is just as important as what you look like.
 
 ---
 
